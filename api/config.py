@@ -9,12 +9,12 @@ def load_env(var_name:str)->str:
     except KeyError:
         raise RuntimeError(f'Variável de ambiente {var_name} não definida!')
 
-CITY=load_dotenv('CITY')
-STATE=load_dotenv('STATE')
-COUNTRY_ISO=load_dotenv('COUNTRY_ISO')
+CITY=load_env('CITY')
+STATE=load_env('STATE')
+COUNTRY_ISO=load_env('COUNTRY_ISO')
 
-NOMINATIM_EMAIL=load_dotenv('NOMINATIM_EMAIL')
+NOMINATIM_EMAIL=load_env('NOMINATIM_EMAIL')
 
-GEOSAMPA_WFS_DOMAIN=load_dotenv('GEOSAMPA_WFS_DOMAIN')
-GEOSAMPA_API_VERSION=load_dotenv('GEOSAMPA_API_VERSION')
-DISTANCIA_PADRAO_MTS_GEOSAMPA=load_dotenv('DISTANCIA_PADRAO_MTS_GEOSAMPA')
+GEOSAMPA_WFS_DOMAIN=load_env('GEOSAMPA_WFS_DOMAIN')
+GEOSAMPA_API_VERSION=load_env('GEOSAMPA_API_VERSION')
+DISTANCIA_PADRAO_MTS_GEOSAMPA=load_env('DISTANCIA_PADRAO_MTS_GEOSAMPA')
