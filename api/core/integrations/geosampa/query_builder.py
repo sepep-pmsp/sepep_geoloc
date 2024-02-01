@@ -7,14 +7,6 @@ class WithinQueryBuilder:
 
         self.api_version = api_version
     
-    def set_Wfs_service(self, query:dict)->None:
-
-        query['service'] = 'WFS'
-
-    def set_version(self, query:dict)->None:
-
-        query['version'] = self.api_version
-
     def set_request_action(self, query:dict)->None:
 
         query['request'] = 'GetFeature'
@@ -50,8 +42,6 @@ class WithinQueryBuilder:
 
     def build_query_config(self, query:dict)->None:
 
-        self.set_Wfs_service(query)
-        self.set_version(query)
         self.set_request_action(query)
         self.set_to_json(query)
 
@@ -63,10 +53,10 @@ class WithinQueryBuilder:
 
     def build_query_str(self, query:dict)->str:
 
-        params = [f'{key}={val}' for key, val in query.params]
+        params = [f'{key}={val}' for key, val in query.items()]
         param_str = '&'.join(params)
 
-        return '?' + param_str
+        return param_str
 
     def __call__(self, camada:str, x:float, y:float, precision:float, geom_type='poligono')->str:
 
