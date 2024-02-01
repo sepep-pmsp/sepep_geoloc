@@ -1,5 +1,6 @@
-from requests import Session
+from requests import Session, Response
 
+from api.core.decorators.response_parsing import json_decode_error_handling
 from .query_builder import QueryBuilder
 
 
@@ -40,13 +41,14 @@ class Nominatim:
 
         self.session.headers.update({'Accept-Language' : 'en-US'})
 
+    @json_decode_error_handling
     def address_request(self, address:str)->dict:
 
         query = self.build_query(address)
         url = self.base_url+'?'+query
         print('Searching nominatim: ', url)
         with self.session.get(url) as r:
-            return r.json()
+            return r
 
     def __call__(self, address:str)->dict:
 
