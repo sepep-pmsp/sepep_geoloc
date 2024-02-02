@@ -7,7 +7,7 @@ class AddressParser:
     @attr_not_found('address')
     def get_address(self, feature:dict)->dict:
 
-        return feature['address']
+        return feature['properties']['address']
 
     @attr_not_found('cidade')
     def get_city(self, address:dict)->str:
@@ -73,10 +73,10 @@ class AddressParser:
 
         return parsed_addres
     
-    def build_resp(self, feature:dict)->dict:
+    def build_feat_geojson(self, feature:dict)->dict:
 
-        resp = {}
-        resp['endereco'] = self.parse_address(feature)
+        resp = {'type' : 'feature'}
+        resp['properties'] = self.parse_address(feature)
         resp['geometry'] = self.get_geom(feature)
         resp['bbox'] = self.get_bbox(feature)
 
@@ -92,11 +92,33 @@ class AddressParser:
 
         features = self.get_features(resp)
 
-        return [self.parse_address(feat) for feat in features]
+        return [self.build_feat_geojson(feat) for feat in features]
+
+    def add_crs_param(self, geojson:dict)->None:
+
+        geojson['crs']  = {
+            "type": "name",
+            "properties": {
+            "name": "EPSG:4326"
+            }
+        }
+    
+    def geojson_envelop(self, parsed_resp:List[dict])->dict:
+
+        geojson = {
+            'type': 'FeatureCollection',
+            'features' : parsed_resp
+        }
+
+        self.add_crs_param(geojson)
+
+        return geojson
     
     def __call__(self, resp:dict)->List[dict]:
 
-        return self.parse_all_features(resp)
+        parsed_features = self.parse_all_features(resp)
+
+        return self.geojson_envelop(parsed_features)
 
 
     
