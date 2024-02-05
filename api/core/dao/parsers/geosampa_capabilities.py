@@ -28,3 +28,40 @@ class ParseCamadas:
         features = self.get_camadas(xml_resp)
 
         return self.parse_all_camadas(features)
+
+class ParseCamadaDetail:
+
+
+    def extract_feature_data(self, original_resp:dict)->List[dict]:
+
+        try:
+            #todas as camadas soh tem uma featuretype
+            feats = original_resp['featureTypes']
+            return feats[0]['properties']
+        except KeyError:
+            raise RuntimeError(f'Camada com erro nas propriedades: {original_resp}')
+
+    def prop_is_geom(self, property_data:dict)->bool:
+
+        return property_data['type'].startswith('gml')
+    
+    def parse_property(self, property_data:dict)->dict:
+
+        parsed = {'name' : property_data['name'],
+                  'nillable' : property_data['nillable'],
+                  'type' : property_data['localType'],
+                  'is_geom' : self.prop_is_geom(property_data),
+                  }
+        
+        return parsed
+    
+    def parse_camada(self, original_resp:dict)->dict:
+
+        props = self.extract_feature_data(original_resp)
+        
+        return [self.parse_property(prop) for prop in props]
+
+    def __call__(self, original_resp:dict)->List[dict]:
+
+        return self.parse_camada(original_resp)
+    
