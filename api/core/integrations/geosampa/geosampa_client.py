@@ -1,7 +1,7 @@
 from requests import Session, Response
 
 from .query_builder import WithinQueryBuilder
-from .list_capabilities import CapabilitiesRequest
+from .capabilities import CapabilitiesRequest, DescribeFeature
 from api.core.decorators.response_parsing import json_decode_error_handling, xml_to_json_decode_error_handling
 
 class GeoSampa:
@@ -15,6 +15,7 @@ class GeoSampa:
         self.session = Session()
         self.within_query = WithinQueryBuilder(self.version)
         self.list_capabilities_query = CapabilitiesRequest()
+        self.describe_feature_query = DescribeFeature()
 
         self.precision = default_precision
 
@@ -73,3 +74,10 @@ class GeoSampa:
         url = self.build_query_url(query_args)
 
         return self.wfs_xml_request(url)
+    
+    def describe_feature(self, feature_name:str)->dict:
+
+        query_args = self.describe_feature_query(feature_name)
+        url = self.build_query_url(query_args)
+
+        return self.wfs_geojson_request(url)
