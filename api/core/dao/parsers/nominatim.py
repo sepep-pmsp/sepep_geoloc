@@ -1,4 +1,5 @@
-from. handlers import attr_not_found
+from .handlers import attr_not_found
+from api.core.utils.geo import geojson_envelop
 
 from typing import List
 
@@ -94,31 +95,11 @@ class AddressParser:
 
         return [self.build_feat_geojson(feat) for feat in features]
 
-    def add_crs_param(self, geojson:dict)->None:
-
-        geojson['crs']  = {
-            "type": "name",
-            "properties": {
-            "name": "EPSG:4326"
-            }
-        }
-    
-    def geojson_envelop(self, parsed_resp:List[dict])->dict:
-
-        geojson = {
-            'type': 'FeatureCollection',
-            'features' : parsed_resp
-        }
-
-        self.add_crs_param(geojson)
-
-        return geojson
-    
     def __call__(self, resp:dict)->List[dict]:
 
         parsed_features = self.parse_all_features(resp)
 
-        return self.geojson_envelop(parsed_features)
+        return geojson_envelop(parsed_features, epsg_num=4326)
 
 
     

@@ -1,9 +1,9 @@
 from api.core.integrations import nominatim_address_search
 from api.core.integrations import geosampa
 from .parsers.nominatim import AddressParser
-from typing import Tuple, List
+from typing import List
 
-from api.core.utils.geo import convert_points_to_sirgas
+from api.core.utils.geo import convert_points_to_sirgas, geojson_envelop
 
 class AddresSearch:
 
@@ -59,14 +59,11 @@ class AddresSearch:
 
     def address_feature_to_geojson(self, address_feat:dict, crs:dict)->dict:
         '''takes and anddress features and format it to a whole geojson'''
-
-        add_geojson = {
-                'type'  : 'FeatureCollection',
-                'features' : [address_feat],
-                'crs' : crs
-            }
         
-        return add_geojson
+        #crs must be of t he whole geojson not of just one feature
+        crs_num = int(crs['properties']['name'].split(':')[-1])
+        
+        return geojson_envelop([address_feat], crs_num)
     
     def __call__(self, address:str, **camadas)->[]:
 

@@ -2,6 +2,7 @@ from pyproj import CRS, Transformer
 from typing import Tuple
 import geopandas as gpd
 from shapely.geometry import shape
+from typing import List
 
 wgs_84_crs = CRS("WGS84")
 sirgas_2000_crs = CRS('epsg:31983')
@@ -57,3 +58,28 @@ def convert_points_to_sirgas(geojson_feature:dict)->Tuple[float, float]:
 
 
     return x, y
+
+
+def geojson_crs_param(epsg_num:int)->None:
+
+    crs = {
+        "type": "name",
+        "properties": {
+        "name": f"EPSG:{epsg_num}"
+        }
+    }
+
+    return crs
+
+def geojson_envelop(feature_list:List[dict], epsg_num:int=None)->dict:
+
+    geojson = {
+        'type': 'FeatureCollection',
+        'features' : feature_list
+    }
+
+    if epsg_num:
+        geojson['crs'] = geojson_crs_param(epsg_num)
+        
+
+    return geojson
