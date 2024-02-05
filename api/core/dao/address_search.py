@@ -28,7 +28,7 @@ class AddresSearch:
     
     def distrito(self, point_geojson:dict)->dict:
 
-        return self.geosampa_layer_query(point_geojson, 'geoportal:distrito')
+        return self.geosampa_layer_query(point_geojson, 'geoportal:distrito_municipal')
 
     def subprefeitura(self, point_geojson:dict)->dict:
 
@@ -53,20 +53,33 @@ class AddresSearch:
 
         if camadas:
             for camada_alias, camada_nome in camadas.items():
-                add_layer_data[camada_alias] = self.geosampa_layer_query(add_layer_data['endereco'], camada_nome)
+                endereco_feature = add_layer_data['endereco']['features'][0]
+                add_layer_data[camada_alias] = self.geosampa_layer_query(endereco_feature, camada_nome)
+
+
+    def address_feature_to_geojson(self, address_feat:dict, crs:dict)->dict:
+        '''takes and anddress features and format it to a whole geojson'''
+
+        add_geojson = {
+                'type'  : 'FeatureCollection',
+                'features' : [address_feat],
+                'crs' : crs
+            }
+        
+        return add_geojson
     
     def __call__(self, address:str, **camadas)->[]:
 
 
         geoloc_resp = self.nominatim_address_search(address)
         self.filter_address_sp(geoloc_resp)
-
+        nominatim_crs = geoloc_resp['crs']
         data = []
         #arrumar o endereco para ficar geojson
         for add in geoloc_resp['features']:
-
+            
             add_layer_data = {
-                'endereco' : add,
+                'endereco' : self.address_feature_to_geojson(add, nominatim_crs),
                 'distrito' : self.distrito(add),
                 'subprefeitura' : self.subprefeitura(add),
             }
