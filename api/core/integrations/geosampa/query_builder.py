@@ -51,12 +51,6 @@ class WithinQueryBuilder:
         self.set_camada(camada, query)
         self.distance_within(x, y, precision, geom_type, query)
 
-    def build_query_str(self, query:dict)->str:
-
-        params = [f'{key}={val}' for key, val in query.items()]
-        param_str = '&'.join(params)
-
-        return param_str
 
     def __call__(self, camada:str, x:float, y:float, precision:float, geom_type='poligono')->str:
 
@@ -64,6 +58,4 @@ class WithinQueryBuilder:
         self.build_query_config(query)
         self.build_within_query(camada, x, y, precision, geom_type, query)
 
-        query_str = self.build_query_str(query)
-
-        return query_str
+        return query
