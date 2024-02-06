@@ -1,9 +1,10 @@
 from api.core.integrations import nominatim_address_search
-from api.core.integrations import geosampa
 from .parsers.nominatim import AddressParser
 from typing import List
 
-from api.core.utils.geo import convert_points_to_sirgas, geojson_envelop
+from .geosampa_query import GeoSampaQuery
+from .parsers.geosampa_geojson import GeosampaGeoJsonParser
+from api.core.utils.geo import geojson_envelop
 
 class AddresSearch:
 
@@ -11,7 +12,8 @@ class AddresSearch:
 
         self.nominatim = nominatim_address_search
         self.nominatim_parser = AddressParser()
-        self.geosampa = geosampa
+        self.geosampa_query = GeoSampaQuery()
+        self.geosampa_parser = GeosampaGeoJsonParser()
 
     def nominatim_address_search(self, address:str)->List[dict]:
 
@@ -19,20 +21,6 @@ class AddresSearch:
         geojson_data = self.nominatim_parser(resp)
 
         return geojson_data
-    
-    def geosampa_layer_query(self, point_geojson:dict, layer_name:str)->dict:
-
-        x, y = convert_points_to_sirgas(point_geojson)
-
-        return self.geosampa.point_within_pol(layer_name, x, y)
-    
-    def distrito(self, point_geojson:dict)->dict:
-
-        return self.geosampa_layer_query(point_geojson, 'geoportal:distrito_municipal')
-
-    def subprefeitura(self, point_geojson:dict)->dict:
-
-        return self.geosampa_layer_query(point_geojson, 'geoportal:subprefeitura')
     
     def is_sp(self, address:dict)->bool:
 
@@ -48,15 +36,6 @@ class AddresSearch:
                 if self.is_sp(add)]
         address_geojson['features'] = in_city
 
-
-    def add_camadas_query(self, add_layer_data:dict, **camadas)->dict:
-
-        if camadas:
-            for camada_alias, camada_nome in camadas.items():
-                endereco_feature = add_layer_data['endereco']['features'][0]
-                add_layer_data[camada_alias] = self.geosampa_layer_query(endereco_feature, camada_nome)
-
-
     def address_feature_to_geojson(self, address_feat:dict, crs:dict)->dict:
         '''takes and anddress features and format it to a whole geojson'''
         
@@ -65,7 +44,18 @@ class AddresSearch:
         
         return geojson_envelop([address_feat], crs_num)
     
-    def __call__(self, address:str, **camadas)->[]:
+    def format_address_data(self, address:dict, nominatim_crs:str, **camadas)->dict:
+
+        address_data = {
+                'endereco' : self.address_feature_to_geojson(address, nominatim_crs),
+            }
+
+        camadas_data = self.geosampa_query(address, **camadas)
+        address_data['camadas_geosampa'] = camadas_data
+
+        return address_data
+    
+    def __call__(self, address:str, **camadas)->List[dict]:
 
 
         geoloc_resp = self.nominatim_address_search(address)
@@ -74,16 +64,8 @@ class AddresSearch:
         data = []
         #arrumar o endereco para ficar geojson
         for add in geoloc_resp['features']:
-            
-            add_layer_data = {
-                'endereco' : self.address_feature_to_geojson(add, nominatim_crs),
-                'distrito' : self.distrito(add),
-                'subprefeitura' : self.subprefeitura(add),
-            }
-
-            self.add_camadas_query(add_layer_data, **camadas)
-
-            data.append(add_layer_data)
+            print(nominatim_crs)
+            data.append(self.format_address_data(add, nominatim_crs, **camadas))
 
         return data
             
