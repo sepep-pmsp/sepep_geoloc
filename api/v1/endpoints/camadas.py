@@ -18,7 +18,7 @@ async def list_camadas():
     return camadas
 
 @app.get('/camadas_geosampa/{layer_name}', response_model=DetalhesCamada)
-async def detalhar_camada(layer_name:str):
+async def detalhes_camada(layer_name:str):
 
     return detalhar_camada(layer_name)
 

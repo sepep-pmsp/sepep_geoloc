@@ -7,7 +7,7 @@ class CamadaBasico(BaseModel):
 
     layer_name: str
     title: str
-    abstract: str
+    abstract: Optional[str]=None
     crs: str
 
     @validator('crs')
