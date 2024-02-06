@@ -1,10 +1,10 @@
-from api.core.integrations import nominatim_address_search
+from core.integrations import nominatim_address_search
 from .parsers.nominatim import AddressParser
 from typing import List
 
 from .geosampa_query import GeoSampaQuery
 from .parsers.geosampa_geojson import GeosampaGeoJsonParser
-from api.core.utils.geo import geojson_envelop
+from core.utils.geo import geojson_envelop
 
 class AddresSearch:
 

@@ -1,6 +1,6 @@
 from pydantic import BaseModel, validator
 from typing import List, Optional, Union
-from api.config import GEOM_TYPES
+from config import GEOM_TYPES
 
 
 class CamadaBasico(BaseModel):

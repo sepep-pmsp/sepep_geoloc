@@ -2,7 +2,7 @@ from requests import Session, Response
 
 from .query_builder import WithinQueryBuilder
 from .capabilities import CapabilitiesRequest, DescribeFeature
-from api.core.decorators.response_parsing import json_decode_error_handling, xml_to_json_decode_error_handling
+from core.decorators.response_parsing import json_decode_error_handling, xml_to_json_decode_error_handling
 
 class GeoSampa:
 

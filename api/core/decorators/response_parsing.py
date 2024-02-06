@@ -1,4 +1,4 @@
-from api.core.utils.json_decode import json_resp_decode_error, xml_to_json_decode_error
+from core.utils.json_decode import json_resp_decode_error, xml_to_json_decode_error
 
 def json_decode_error_handling(func):
 

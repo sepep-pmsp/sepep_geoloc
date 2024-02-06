@@ -1,6 +1,6 @@
 from requests import Session, Response
 
-from api.core.decorators.response_parsing import json_decode_error_handling
+from core.decorators.response_parsing import json_decode_error_handling
 from .query_builder import QueryBuilder
 
 

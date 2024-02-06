@@ -1,5 +1,5 @@
 from .handlers import attr_not_found
-from api.core.utils.geo import geojson_envelop
+from core.utils.geo import geojson_envelop
 
 from typing import List
 

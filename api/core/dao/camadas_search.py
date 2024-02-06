@@ -1,6 +1,6 @@
 from typing import List
-from api.core.integrations import geosampa
-from api.core.dao.parsers.geosampa_capabilities import ParseCamadas, ParseCamadaDetail
+from core.integrations import geosampa
+from core.dao.parsers.geosampa_capabilities import ParseCamadas, ParseCamadaDetail
 
 class ListCamadas:
 

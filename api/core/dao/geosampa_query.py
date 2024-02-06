@@ -1,5 +1,5 @@
-from api.core.integrations import geosampa
-from api.core.utils.geo import convert_points_to_sirgas
+from core.integrations import geosampa
+from core.utils.geo import convert_points_to_sirgas
 from .parsers.geosampa_geojson import GeosampaGeoJsonParser
 
 class GeoSampaQuery:
