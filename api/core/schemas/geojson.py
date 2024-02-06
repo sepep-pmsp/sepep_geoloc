@@ -1,16 +1,6 @@
 from pydantic import BaseModel, validator
 from typing import List, Optional, Union
-
-
-GEOM_TYPES = (
-    'Geometry',
-    'LineString',
-    'MultiLineString',
-    'MultiPolygon',
-    'Point',
-    'Polygon'
-)
-
+from api.config import GEOM_TYPES
 
 class Geometry(BaseModel):
 

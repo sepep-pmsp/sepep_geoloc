@@ -18,3 +18,13 @@ NOMINATIM_EMAIL=load_env('NOMINATIM_EMAIL')
 GEOSAMPA_WFS_DOMAIN=load_env('GEOSAMPA_WFS_DOMAIN')
 GEOSAMPA_API_VERSION=load_env('GEOSAMPA_API_VERSION')
 DISTANCIA_PADRAO_MTS_GEOSAMPA=load_env('DISTANCIA_PADRAO_MTS_GEOSAMPA')
+
+
+GEOM_TYPES = (
+    'Geometry',
+    'LineString',
+    'MultiLineString',
+    'MultiPolygon',
+    'Point',
+    'Polygon'
+)
