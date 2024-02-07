@@ -3,6 +3,20 @@ from typing import List, Dict, Optional
 
 from .geojson import GeoJson
 
+class EnderecoProperties(BaseModel):
+
+    rua: str
+    numero: Optional[str]=None
+    cidade: str
+    estado: str
+    pais: str
+    codigo_pais: str
+    string_endereco: str
+    osm_type: str
+
+class Endereco(GeoJson):
+
+    properties: EnderecoProperties
 
 class AdressSearch(BaseModel):
 
