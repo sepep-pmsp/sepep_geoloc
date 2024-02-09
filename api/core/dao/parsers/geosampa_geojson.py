@@ -27,7 +27,6 @@ class GeosampaGeoJsonParser:
     
     def padronizar_feature(self, feature:dict)->dict:
 
-        print(feature)
         parsed = {
             'type' : feature['type'],
             'properties' : feature['properties'],

@@ -46,7 +46,6 @@ class AddresSearchSimple:
 
         geoloc_resp = self.nominatim_address_search(address)
         self.filter_address_sp(geoloc_resp)
-        nominatim_crs = geoloc_resp['crs']
 
         return geoloc_resp
             

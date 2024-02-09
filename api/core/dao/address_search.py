@@ -64,7 +64,6 @@ class AddresSearch:
         data = []
         #arrumar o endereco para ficar geojson
         for add in geoloc_resp['features']:
-            print(nominatim_crs)
             data.append(self.format_address_data(add, nominatim_crs, **camadas))
 
         return data
