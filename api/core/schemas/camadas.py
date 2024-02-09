@@ -19,6 +19,15 @@ class CamadaBasico(BaseModel):
         
         return value
     
+    @validator('layer_name')
+    def remove_geoportal(cls, value):
+
+        value = str(value)
+        if value.startswith('geoportal:'):
+            value = value.replace(r'geoportal:', '')
+        
+        return value
+    
 class PropertyCamada(BaseModel):
 
     name: str
