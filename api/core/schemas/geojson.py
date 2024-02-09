@@ -16,12 +16,20 @@ class Geometry(BaseModel):
 
 class Feature(BaseModel):
 
-    type: str='feature'
+    type: str='Feature'
     #override properties on inherited class to specify them
     properties: dict
     geometry: Geometry
     bbox: Optional[List[float]]=None
     geometry_name: Optional[str]=None
+
+
+    @validator('type')
+    def type_as_title(cls, value):
+
+        value = str(value)
+
+        return value.title()
 
 class CRSProperty(BaseModel):
 

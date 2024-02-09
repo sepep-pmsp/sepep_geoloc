@@ -88,7 +88,7 @@ class AddressParser:
     
     def build_feat_geojson(self, feature:dict)->dict:
 
-        resp = {'type' : 'feature'}
+        resp = {'type' : 'Feature'}
         resp['properties'] = self.parse_address(feature)
         resp['geometry'] = self.get_geom(feature)
         resp['bbox'] = self.get_bbox(feature)
