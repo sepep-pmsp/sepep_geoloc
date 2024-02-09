@@ -12,6 +12,9 @@ app = APIRouter()
 
 @app.post('/geolocalizar_endereco/', response_model=List[AdressSearch], tags=['geolocalizacao'])
 async def geolocalizar_endereco(search_endereco:AdressSearchParameters):
+    '''Realiza a busca do endereço (geolocalização). Permite a integração com o GeoSampa por meio do parâmetro 'camadas_geosampa'.
+    Para cada uma das camadas selecionadas, a ferramenta irá identificar o(s) objeto(s) da camada que intersectam o ponto que representa o 
+    endereço, conforme retornado pela geolocalização'''
 
     endereco = search_endereco.endereco
     camadas = search_endereco.camadas
