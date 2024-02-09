@@ -28,3 +28,5 @@ GEOM_TYPES = (
     'Point',
     'Polygon'
 )
+
+NAMES_CAMADAS_TTL_SECONDS=load_env('NAMES_CAMADAS_TTL_SECONDS')

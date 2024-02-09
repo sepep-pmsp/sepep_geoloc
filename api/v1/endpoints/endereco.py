@@ -1,14 +1,18 @@
-from fastapi import APIRouter, Query
+from fastapi import APIRouter, Query, HTTPException
 
 from typing import List
 
-from core.dao import buscar_endereco, buscar_endereco_simples
+from core.dao import buscar_endereco, buscar_endereco_simples, nomes_camadas
 from core.schemas.address import AdressSearch, AdressSearchParameters, GeoJsonEndereco
 
 
 
 app = APIRouter()
 
+def check_camada_exists(layer_name:str)->None:
+
+    if layer_name not in nomes_camadas:
+        raise HTTPException(status_code=404, detail=f"Camada {layer_name.replace('geoportal:', '')} não encontrada")
 
 @app.post('/geolocalizar_endereco', tags=['geolocalizacao'])
 async def geolocalizar_endereco(search_endereco:AdressSearchParameters)->List[AdressSearch]:
@@ -20,7 +24,10 @@ async def geolocalizar_endereco(search_endereco:AdressSearchParameters)->List[Ad
     camadas = search_endereco.camadas
 
     if camadas:
-        camadas_geosampa = {camada.alias:camada.layer_name for camada in camadas}
+        camadas_geosampa = {}
+        for camada in camadas:
+            check_camada_exists(camada.layer_name)
+            camadas_geosampa[camada.alias] = camada.layer_name
     else:
         camadas_geosampa={}
     data = buscar_endereco(endereco, **camadas_geosampa)
