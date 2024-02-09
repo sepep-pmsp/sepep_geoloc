@@ -1,7 +1,7 @@
 from pydantic import BaseModel, validator
 from typing import List, Dict, Optional
 
-from .geojson import GeoJson
+from .geojson import GeoJson, Feature
 
 class EnderecoProperties(BaseModel):
 
@@ -14,9 +14,13 @@ class EnderecoProperties(BaseModel):
     string_endereco: str
     osm_type: str
 
-class Endereco(GeoJson):
+class Endereco(Feature):
 
     properties: EnderecoProperties
+
+class GeoJsonEndereco(GeoJson):
+
+    features: List[Endereco]
 
 class AdressSearch(BaseModel):
 
