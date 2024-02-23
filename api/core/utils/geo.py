@@ -15,6 +15,8 @@ transf_sirgas_to_wgs=  Transformer.from_crs(wgs_84_crs, sirgas_2000_crs)
 
 def point_from_wgs_to_sirgas(x:float, y:float)->Tuple[float, float]:
 
+    #o wgs 84 vem no format long lat, tenho que fazer lat lon para o sirgas
+    x, y = y, x
     x, y = transf_wgs_to_sirgas.transform(x, y)
 
     return x, y
@@ -27,9 +29,20 @@ def point_from_sirgas_to_wgs(x:float, y:float)->Tuple[float, float]:
     return x, y
 
 
-def geojson_dict_to_geodf(geojson:dict, crs_data=True)->gpd.GeoDataFrame:
+def shapely_parse_geometries(geojson_dict:dict, long_lat=False)->list:
 
-    geometries = [orient(shape(feature['geometry'])) for feature in geojson['features']]
+
+    #if long lat, will reorient geometries
+    if long_lat:
+        geometries = [orient(shape(feature['geometry'])) for feature in geojson_dict['features']]
+    else:
+        geometries = [shape(feature['geometry']) for feature in geojson_dict['features']]
+
+    return geometries
+
+def geojson_dict_to_geodf(geojson:dict, crs_data=True, long_lat=False)->gpd.GeoDataFrame:
+
+    geometries = shapely_parse_geometries(geojson, long_lat)
     gdf = gpd.GeoDataFrame(geometry=geometries)
     #pressupoe que as properties sao as mesmas
     for key in geojson['features'][0]['properties']:
@@ -50,14 +63,12 @@ def extract_points_from_feature(geojson_feature:dict)->Tuple[float, float]:
 
         x, y = geom['coordinates']
 
-        #nunca entendi o por que, mas precisa inverter
-        return y, x
+        return x, y
 
 def convert_points_to_sirgas(geojson_feature:dict)->Tuple[float, float]:
 
     x, y = extract_points_from_feature(geojson_feature)
     x, y = point_from_wgs_to_sirgas(x, y)
-
 
     return x, y
 

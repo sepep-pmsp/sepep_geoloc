@@ -18,7 +18,8 @@ def check_camada_exists(layer_name:str)->None:
 async def geolocalizar_endereco(search_endereco:AdressSearchParameters)->List[AdressSearch]:
     '''Realiza a busca do endereço (geolocalização). Permite a integração com o GeoSampa por meio do parâmetro 'camadas_geosampa'.
     Para cada uma das camadas selecionadas, a ferramenta irá identificar o(s) objeto(s) da camada que intersectam o ponto que representa o 
-    endereço, conforme retornado pela geolocalização'''
+    endereço, conforme retornado pela geolocalização. Caso selecione a opção convert_to_wgs_84, o resultado da integração com o GeoSampa 
+    será reprojetado, e as coordenadas serão reorientadas para long, lat.'''
 
     endereco = search_endereco.endereco
     camadas = search_endereco.camadas
