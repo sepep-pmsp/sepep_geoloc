@@ -6,6 +6,8 @@ from typing import List
 import json
 from shapely.ops import orient
 
+from config import SAO_PAULO_WGS_BOUNDING_BOX
+
 wgs_84_crs = CRS("WGS84")
 sirgas_2000_crs = CRS('epsg:31983')
 
@@ -112,3 +114,14 @@ def geopandas_to_geojson_dict(gdf:gpd.GeoDataFrame, epsg_num:int=None)->dict:
         geojson_dict['crs'] = geojson_crs_param(epsg_num)
 
     return geojson_dict
+
+
+def within_sao_paulo_bbox(x: float, y: float)->bool:
+
+    xmax = SAO_PAULO_WGS_BOUNDING_BOX[0][0]
+    xmin = SAO_PAULO_WGS_BOUNDING_BOX[1][0]
+
+    ymax = SAO_PAULO_WGS_BOUNDING_BOX[0][1]
+    ymin = SAO_PAULO_WGS_BOUNDING_BOX[1][1]
+
+    return (x>=xmin and x<=xmax)and(y>=ymin and y<=ymax)
