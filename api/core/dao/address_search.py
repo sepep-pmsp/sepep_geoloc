@@ -2,7 +2,7 @@ from core.integrations import nominatim_address_search
 from .parsers.nominatim import AddressParser
 from typing import List
 
-from .geosampa_query import GeoSampaQuery
+from .geosampa import geosampa_address_query
 from .parsers.geosampa_geojson import GeosampaGeoJsonParser
 from core.utils.geo import geojson_envelop
 
@@ -12,7 +12,7 @@ class AddresSearch:
 
         self.nominatim = nominatim_address_search
         self.nominatim_parser = AddressParser()
-        self.geosampa_query = GeoSampaQuery()
+        self.geosampa_query = geosampa_address_query
         self.geosampa_parser = GeosampaGeoJsonParser()
 
     def nominatim_address_search(self, address:str)->List[dict]:
