@@ -4,6 +4,8 @@ from .parsers.geosampa_geojson import GeosampaGeoJsonParser
 from .convert_to_wgs_84 import WGS84_conversor
 from .camadas_search import DetailCamada
 
+from core.schemas.address import CamadaParamInternal
+
 class GeoSampaQuery:
 
     def __init__(self):
@@ -23,7 +25,7 @@ class GeoSampaQuery:
 
         layer_data = self.geosampa_layer_query(endereco_feature, camada_data.layer_name, camada_data.geom_col, camada_data.distance)
         geojson_data = self.parse_geojson(layer_data)
-        if convert_to_wgs_84:
+        if convert_to_wgs_84 and geojson_data['features']:
             geojson_data = self.convert_wgs_84(geojson_data, retrieve_geometry_name=True)
 
         return geojson_data
@@ -31,8 +33,9 @@ class GeoSampaQuery:
     def set_geom_col(self, camada_data)->None:
 
         detalhes_camada = self.detalhar_camada(camada_data.layer_name)
-        
-        camada_data.geom_col = detalhes_camada['geom_col']
+        camada_data = camada_data.__dict__
+        camada_data['geom_col'] = detalhes_camada['geom_col']
+        camada_data = CamadaParamInternal(**camada_data)
 
     def query_camadas(self, endereco_feature:dict, convert_to_wgs_84:bool, **camadas)->dict:
         '''endereco_feature must be a point geojson'''
@@ -40,6 +43,7 @@ class GeoSampaQuery:
         camadas_geosampa = dict()
         if camadas:
             for camada_alias, camada_data in camadas.items():
+
                 self.set_geom_col(camada_data)
                 geojson_data = self.query_camada(endereco_feature, camada_data, convert_to_wgs_84)
                 camadas_geosampa[camada_alias] = geojson_data

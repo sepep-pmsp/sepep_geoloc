@@ -1,4 +1,4 @@
-from pydantic import BaseModel, validator, Extra
+from pydantic import BaseModel, validator
 from typing import List, Dict, Optional
 
 from .geojson import GeoJson, Feature
@@ -27,7 +27,8 @@ class AdressSearch(BaseModel):
     endereco: GeoJson
     camadas_geosampa: Dict[str, GeoJson]
 
-class CamadaParam(BaseModel, extra=Extra.allow):
+
+class CamadaParam(BaseModel):
 
     alias: str
     layer_name: str
@@ -41,6 +42,11 @@ class CamadaParam(BaseModel, extra=Extra.allow):
             value = f'geoportal:{value}'
         
         return value
+
+class CamadaParamInternal(CamadaParam):
+
+    geom_col: Optional[str]
+
 
 class AdressSearchParameters(BaseModel):
 
