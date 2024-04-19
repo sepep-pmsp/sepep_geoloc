@@ -3,6 +3,8 @@ from typing import List, Dict, Optional
 
 from .geojson import GeoJson, Feature
 
+from config import DISTANCIA_PADRAO_MTS_GEOSAMPA
+
 class EnderecoProperties(BaseModel):
 
     rua: str
@@ -32,7 +34,7 @@ class CamadaParam(BaseModel):
 
     alias: str
     layer_name: str
-    distance: float
+    distance: Optional[float]=DISTANCIA_PADRAO_MTS_GEOSAMPA
 
     @validator('layer_name')
     def validar_layer_name(cls, value)->str:
