@@ -1,4 +1,4 @@
-from pydantic import BaseModel, validator
+from pydantic import BaseModel, validator, Extra
 from typing import List, Dict, Optional
 
 from .geojson import GeoJson, Feature
@@ -27,10 +27,11 @@ class AdressSearch(BaseModel):
     endereco: GeoJson
     camadas_geosampa: Dict[str, GeoJson]
 
-class CamadaParam(BaseModel):
+class CamadaParam(BaseModel, extra=Extra.allow):
 
     alias: str
     layer_name: str
+    distance: float
 
     @validator('layer_name')
     def validar_layer_name(cls, value)->str:
