@@ -1,6 +1,7 @@
 from pydantic import BaseModel, validator
 from typing import List, Optional, Union
 from config import GEOM_TYPES
+from config import DISTANCIA_PADRAO_MTS_GEOSAMPA
 
 
 class CamadaBasico(BaseModel):

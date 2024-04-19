@@ -4,8 +4,6 @@ from typing import List, Dict, Optional
 from .geojson import GeoJson, Feature
 from .camadas import CamadaParam
 
-from config import DISTANCIA_PADRAO_MTS_GEOSAMPA
-
 class EnderecoProperties(BaseModel):
 
     rua: str
