@@ -29,7 +29,7 @@ async def geolocalizar_endereco(search_endereco:AdressSearchParameters)->List[Ad
         camadas_geosampa = {}
         for camada in camadas:
             check_camada_exists(camada.layer_name)
-            camadas_geosampa[camada.alias] = camada.layer_name
+            camadas_geosampa[camada.alias] = camada
     else:
         camadas_geosampa={}
     try:
