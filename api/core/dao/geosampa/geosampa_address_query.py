@@ -1,12 +1,12 @@
 from core.integrations import geosampa
 from core.utils.geo import convert_points_to_sirgas
-from .parsers.geosampa_geojson import GeosampaGeoJsonParser
-from .convert_to_wgs_84 import WGS84_conversor
-from .camadas_search import DetailCamada
+from ..parsers.geosampa_geojson import GeosampaGeoJsonParser
+from ..convert_to_wgs_84 import WGS84_conversor
+from ..camadas_search import DetailCamada
 
-from core.schemas.address import CamadaParamInternal
+from core.schemas.camadas import CamadaParamInternal
 
-class GeoSampaQuery:
+class GeoSampaAdressQuery:
 
     def __init__(self):
 
