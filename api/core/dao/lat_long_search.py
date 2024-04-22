@@ -2,6 +2,7 @@ from .geosampa import geosampa_point_query
 from core.utils.geo import within_sao_paulo_bbox
 from .parsers.point_to_geojson import point_to_geojson
 
+from core.exceptions import OutofBounds
 
 class LatLongSearch:
 
@@ -27,7 +28,7 @@ class LatLongSearch:
     def __call__(self, x:float, y:float, convert_to_wgs_84:bool=True, **camadas)->None:
         
         if not within_sao_paulo_bbox(x, y):
-            raise ValueError('Must be within Sao Paulo bbox')
+            raise OutofBounds('Must be within Sao Paulo bbox')
         camadas = self.geosampa(x, y, convert_to_wgs_84, **camadas)
         data = self.format_data(x, y, camadas)
 

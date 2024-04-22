@@ -1,6 +1,7 @@
 from core.integrations import nominatim_reverse_search
 from .parsers.nominatim import AddressParser
 
+from core.exceptions import OutofBounds
 from core.utils.geo import within_sao_paulo_bbox
 
 from typing import List
@@ -15,7 +16,7 @@ class ReverseGeocode:
     def check_bbox(self, x:float, y:float)->None:
 
         if not within_sao_paulo_bbox(x, y):
-            raise ValueError(f'Coordenados ({x}, {y}) fora dos limites de São Paulo')
+            raise OutofBounds(f'Coordenados ({x}, {y}) fora dos limites de São Paulo')
 
     def nominatim_reverse_search(self, x:float, y:float)->List[dict]:
 
