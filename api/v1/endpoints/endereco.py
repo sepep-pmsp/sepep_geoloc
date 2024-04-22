@@ -1,8 +1,8 @@
 from fastapi import APIRouter, Query, HTTPException
 
 from typing import List
-from core.exceptions import AtributeNotFound
-from core.dao import buscar_endereco, buscar_endereco_simples, nomes_camadas
+from core.exceptions import AtributeNotFound, OutofBounds
+from core.dao import buscar_endereco, buscar_endereco_simples, nomes_camadas, gelocalizacao_reversa
 from core.schemas.address import AdressSearch, AdressSearchParameters, GeoJsonEndereco
 
 
@@ -43,6 +43,20 @@ async def geolocalizar_endereco(search_endereco:AdressSearchParameters)->List[Ad
 async def geolocalizar_endereco_simples(endereco:str)->GeoJsonEndereco:
     '''Realiza a geolicalização do endereço apenas, sem integração com o GeoSampa.'''
 
-    endereco = buscar_endereco_simples(endereco)
+    try:
+        endereco = buscar_endereco_simples(endereco)
+    except AtributeNotFound as e:
+        raise HTTPException(status_code=500, detail=str(e))
+    return endereco
 
+@app.get('/geolocalizacao_reversa/{x},{y}', tags=['geolocalizacao', 'reversa'])
+async def gelocalizar_endereco_por_x_y(x:float, y:float)->GeoJsonEndereco:
+    '''Realiza a geolocalização reversa de coordenadas WGS84 no formato long (x) e lat (y)'''
+
+    try:
+        endereco  = gelocalizacao_reversa(x, y)
+    except OutofBounds as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    except AtributeNotFound as e:
+        raise HTTPException(status_code=500, detail=str(e))
     return endereco

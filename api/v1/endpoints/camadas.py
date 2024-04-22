@@ -7,6 +7,8 @@ from core.dao import lat_long_geosampa, nomes_camadas
 from core.schemas.point import PointResponse, PointSearch
 from core.schemas.camadas import CamadaBasico, DetalhesCamada, CamadaParam
 
+from core.exceptions import OutofBounds
+
 
 
 app = APIRouter()
@@ -37,13 +39,14 @@ async def integracao_geosampa_point(search_point:PointSearch)->PointResponse:
     x = search_point.point.x
     y = search_point.point.y
     camadas = search_point.camadas
-
     if camadas:
         camadas_geosampa = {}
         for camada in camadas:
             check_camada_exists(camada.layer_name)
             camadas_geosampa[camada.alias] = camada
-
-    return lat_long_geosampa(x, y, **camadas_geosampa)
+    try:
+        return lat_long_geosampa(x, y, **camadas_geosampa)
+    except OutofBounds as e:
+        raise HTTPException(status_code=400, detail=str(e))
 
 
