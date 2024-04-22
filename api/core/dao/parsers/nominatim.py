@@ -6,10 +6,19 @@ from typing import List
 
 class AddressParser:
 
+    def __init__(self, feature_list:bool=False, extract_geom:bool=False)->None:
+
+        #define necessidade de envelopar para casos em que vem o objeto diretamente
+        self.feature_list=feature_list
+        self.extract_geom=extract_geom
+
     @attr_not_found('address')
     def get_address(self, feature:dict)->dict:
 
-        return feature['properties']['address']
+        if self.feature_list:
+            return feature['properties']['address']
+        #no caso de ser flat o address é um atributo direto
+        return feature['address']
 
     @attr_not_found('cidade')
     def get_city(self, address:dict)->str:
@@ -47,17 +56,23 @@ class AddressParser:
     @attr_not_found('geometry')
     def get_geom(self, feature:dict)->dict:
 
-        return feature['geometry']
+
+        if self.extract_geom:
+            return feature['geometry']
+        else:
+            return {}
 
     @attr_not_found('bbox')
     def get_bbox(self, feature:dict)->dict:
 
-        return feature['bbox']
+        return feature.get('bbox') or feature.get('boundingbox')
 
     @attr_not_found('tipo_endereco')
-    def get_osm_type(self, feature_properties:dict)->dict:
+    def get_osm_type(self, feature:dict)->dict:
 
-        return feature_properties['osm_type']
+        #tenta pegar properties, se nao tiver, devolve o feature mesmo
+        prop = feature.get('properties', feature)
+        return prop['osm_type']
 
     def build_address_string(self, parsed_adress:dict)->str:
 
@@ -94,10 +109,11 @@ class AddressParser:
 
         resp = {'type' : 'Feature'}
         resp['properties'] = self.parse_address(feature)
+        
         resp['geometry'] = self.get_geom(feature)
         resp['bbox'] = self.get_bbox(feature)
         #adicionando tipo de endereco às propriedades
-        resp['properties']['osm_type'] = self.get_osm_type(feature['properties'])
+        resp['properties']['osm_type'] = self.get_osm_type(feature)
 
         return resp
 
@@ -115,6 +131,10 @@ class AddressParser:
 
     def __call__(self, resp:dict)->List[dict]:
 
+        if not self.feature_list:
+            #envelopa
+            resp['features']=[resp]
+        
         parsed_features = self.parse_all_features(resp)
 
         return geojson_envelop(parsed_features, epsg_num=4326)
