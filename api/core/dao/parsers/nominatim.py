@@ -30,6 +30,14 @@ class AddressParser:
             raise AtributeNotFound(f'Atributo não encontrado: cidade: {address}' )
 
         return cidade
+    
+    @attr_not_found('bairro')
+    def get_bairro(self, address:dict)->str:
+
+        bairro = address.get('city_district') or address.get('suburb')
+        if bairro is None and self.street_level:
+            raise AtributeNotFound(f'Atributo não encontrado: bairro: {address}' )
+        return bairro
 
     @attr_not_found('state')
     def get_state(self, address:dict)->str:
@@ -112,6 +120,7 @@ class AddressParser:
         parsed_addres = {
             'rua' : self.get_road(resp_address),
             'cidade' : self.get_city(resp_address),
+            'bairro' : self.get_bairro(resp_address),
             'estado' : self.get_state(resp_address),
             'pais' : self.get_country(resp_address),
             'codigo_pais' : self.get_country_code(resp_address),

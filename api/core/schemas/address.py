@@ -10,6 +10,7 @@ class EnderecoProperties(BaseModel):
     rua: str
     numero: Optional[str]=None
     cidade: str
+    bairro: Optional[str]=None
     estado: str
     pais: str
     codigo_pais: str
