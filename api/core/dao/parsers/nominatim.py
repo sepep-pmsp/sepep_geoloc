@@ -6,7 +6,7 @@ from typing import List
 
 class AddressParser:
 
-    def __init__(self, feature_list:bool=False, extract_geom:bool=False)->None:
+    def __init__(self, feature_list:bool=True, extract_geom:bool=True)->None:
 
         #define necessidade de envelopar para casos em que vem o objeto diretamente
         self.feature_list=feature_list

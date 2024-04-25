@@ -11,7 +11,7 @@ class ReverseGeocode:
     def __init__(self):
 
         self.nominatim = nominatim_reverse_search
-        self.nominatim_parser = AddressParser(feature_list=False)
+        self.nominatim_parser = AddressParser(feature_list=False, extract_geom=False)
 
     def check_bbox(self, x:float, y:float)->None:
 
