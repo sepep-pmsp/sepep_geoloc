@@ -85,6 +85,11 @@ class AddressParser:
 
         return addres
 
+    @attr_not_found('cep')
+    def get_cep(self, feature:dict)->dict:
+
+        return feature['postcode']
+
     def parse_address(self, feature:dict)->dict:
 
         resp_address = self.get_address(feature)
@@ -95,6 +100,7 @@ class AddressParser:
             'estado' : self.get_state(resp_address),
             'pais' : self.get_country(resp_address),
             'codigo_pais' : self.get_country_code(resp_address),
+            'cep' : self.get_cep(resp_address)
         }
 
         numero = self.get_number(resp_address)
