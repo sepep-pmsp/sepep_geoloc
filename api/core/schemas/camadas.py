@@ -1,4 +1,4 @@
-from pydantic import BaseModel, validator
+from pydantic import BaseModel, validator, field_validator
 from typing import List, Optional, Union
 from config import GEOM_TYPES
 from config import DISTANCIA_PADRAO_MTS_GEOSAMPA
@@ -11,7 +11,7 @@ class CamadaBasico(BaseModel):
     abstract: Optional[str]=None
     crs: str
 
-    @validator('crs')
+    @field_validator('crs')
     def validate_crs_epsg(cls, value):
         
         value = str(value)
@@ -43,7 +43,7 @@ class DetalhesCamada(BaseModel):
     geom_col: str
     geom_type: str
 
-    @validator('geom_type')
+    @field_validator('geom_type')
     def validate_type(cls, value):
 
         if value not in GEOM_TYPES:
