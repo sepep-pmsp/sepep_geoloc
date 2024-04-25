@@ -6,11 +6,13 @@ from typing import List
 
 class AddressParser:
 
-    def __init__(self, feature_list:bool=True, extract_geom:bool=True)->None:
+    def __init__(self, feature_list:bool=True, extract_geom:bool=True, street_level=True)->None:
 
         #define necessidade de envelopar para casos em que vem o objeto diretamente
         self.feature_list=feature_list
         self.extract_geom=extract_geom
+        #street_level faz retorna um endereço com rua, se não, retorna a nivel de cidade
+        self.street_level=street_level
 
     @attr_not_found('address')
     def get_address(self, feature:dict)->dict:
@@ -47,8 +49,15 @@ class AddressParser:
     @attr_not_found('road')
     def get_road(self, address:dict)->str:
 
-        return address['road']
-
+        rua = address.get('road')
+        if rua is None:
+            if self.street_level:
+                raise AtributeNotFound(f'Atributo não encontrado: rua: {address}' )
+            else:
+                rua = ''
+        return rua
+        
+            
     def get_number(self, address:dict)->str:
 
         return address.get('house_number', None)
@@ -88,7 +97,13 @@ class AddressParser:
     @attr_not_found('cep')
     def get_cep(self, feature:dict)->dict:
 
-        return feature['postcode']
+        cep = feature.get('postcode')
+        if cep is None:
+            if self.street_level:
+                raise AtributeNotFound(f'Atributo não encontrado: cep: {feature}')
+            else:
+                cep = ''
+        return cep
 
     def parse_address(self, feature:dict)->dict:
 
