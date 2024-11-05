@@ -1,4 +1,5 @@
 from core.integrations import nominatim_address_search
+from core.integrations import azure_maps_address_search
 from .parsers.nominatim import AddressParser
 from typing import List
 

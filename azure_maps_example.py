@@ -21,6 +21,7 @@ if response.status_code == 200:
     data = response.json()
     results = data.get('results')
     if results:
+        print(results)
         latitude = results[0]['position']['lat']
         longitude = results[0]['position']['lon']
         print(f"Coordenadas para '{address}':")
@@ -29,3 +30,9 @@ if response.status_code == 200:
         print("Nenhum resultado encontrado para o endereço.")
 else:
     print(f"Erro {response.status_code}: {response.text}")
+
+
+from api.core.integrations.azure import azure_maps_address_search
+
+results = azure_maps_address_search('Viaduto do Chá, nº 15')
+print(results)
