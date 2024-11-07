@@ -114,7 +114,18 @@ class AddressParser:
 
         features = self.get_features(resp)
 
-        return [self.build_feat_geojson(feat) for feat in features]
+        #a API da Azure devolve municipios inteiros, regioes etc.
+        #entao precisa fazer um filtro, porque é comum vir com outros atributos
+
+        parsed_results = []
+        for feat in features:
+            try:
+                parsed = self.build_feat_geojson(feat)
+                parsed_results.append(parsed)
+            except AtributeNotFound:
+                print(f'Feature fora do padrão: {feat}')
+                
+        return parsed_results
 
     def __call__(self, resp:dict)->List[dict]:
 
