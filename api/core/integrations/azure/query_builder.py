@@ -121,7 +121,7 @@ class QueryBuilder:
 
         end_index = self.find_index_street_name(address)
         street_name = address[:end_index]
-        street_name = re.sub(r'[^a-zA-Z0-9\s-]', '', street_name)
+        street_name = re.sub(r'[^\w0-9\s-]', '', street_name)
 
         return street_name
             
