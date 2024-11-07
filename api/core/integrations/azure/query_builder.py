@@ -65,15 +65,20 @@ class QueryBuilder:
         self.set_country(query)
 
 
-    def search_street(self, query:dict, street:str)->None:
+    def set_street(self, query:dict, street:str)->None:
 
         #rua e numero apenas o resto vai ser pre definido
         query['streetName'] = street
 
-    def search_street_number(self, query:dict, number:str)->None:
+    def set_street_number(self, query:dict, number:str)->None:
 
         #rua e numero apenas o resto vai ser pre definido
         query['streetNumber'] = number
+
+    def set_address_query(self, query:dict, full_address:str)->None:
+
+        query['query'] = full_address
+
 
     def build_query_str(self, query:dict)->str:
 
@@ -81,35 +86,63 @@ class QueryBuilder:
 
         return '&'.join(search_pairs)
 
-    def build_full_query(self, street:str, number:str)->dict:
+    def get_street_number(self, address:str)->str:
+
+        #esse regex vai pegar o numero e o que tem logo em volta dele
+        regex_pat = r'((,|;|nº)*\s*)\d+(\s|\w|,|;)'
+
+        num_search = re.search(regex_pat, address, flags=re.IGNORECASE)
+        if num_search:
+            num_search = num_search.group()
+            num = ''.join(char for char in num_search if char.isdigit())
+            return num
+        
+        return ''
+    
+    def find_index_street_name(self, address:str)->int:
+
+        street_num = self.get_street_number(address)
+        if street_num:
+            return address.find(street_num)
+        
+        primeira_virgula = re.search(r'(,|;)', address)
+        if primeira_virgula:
+            return address.find(primeira_virgula)
+        
+        sao_paulo = re.search(r's.o paulo', address, re.IGNORECASE)
+        if sao_paulo:
+            return address.find(sao_paulo)
+        
+        #se nao tem nada disso, o endereço é só o nome da rua
+        return -1
+        
+    
+    def get_street_name(self, address:str)->str:
+
+        end_index = self.find_index_street_name(address)
+        street_name = address[:end_index]
+        street_name = re.sub(r'[^a-zA-Z0-9\s-]', '', street_name)
+
+        return street_name
+            
+
+    def build_full_query(self, address:str)->dict:
+
+        street = self.get_street_name(address)
+        number = self.get_street_number(address)
 
         query = dict()
-        self.search_street(query, street)
-        self.search_street_number(query, number)
+        address = ', '.join([street, number])
+        self.set_address_query(query, address)
+        self.set_street(query, street)
+        self.set_street_number(query, number)
         self.set_search_boundaries(query)
         self.set_config_params(query)
 
         return self.build_query_str(query)
-    
-    def get_street_number(address:str)->str:
-
-        apos_virgula = address.split(',')[1]
-        search_sp = re.search('(s.o paulo)|(sp)', flags=re.IGNORECASE)
-        if search_sp:
-            indice_sp = search_sp.start()
-            apos_virgula = apos_virgula[:indice_sp]
-
-        return ''.join([item for item in  apos_virgula if item.is_digit()])
-    
-    def get_street_name(address:str)->str:
-
-        return address.split(',')[0]
 
     def __call__(self, address:str)->str:
         '''Address is considered just street number and name. Rest is pre-defined. 
         Street number and name are extracted from string'''
 
-        number = self.get_street_number(address)
-        street = self.get_street_name(address)
-
-        return self.build_full_query(street, number)
+        return self.build_full_query(address)
