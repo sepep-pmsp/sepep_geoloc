@@ -1,6 +1,6 @@
 from .handlers import attr_not_found
 from core.exceptions import AtributeNotFound
-from core.utils.geo import geojson_envelop
+from core.utils.geo import geojson_envelop, build_bbox_viewport, build_geom_from_points
 
 from typing import List
 
@@ -9,21 +9,17 @@ class AddressParser:
     @attr_not_found('address')
     def get_address(self, feature:dict)->dict:
 
-        return feature['properties']['address']
+        return feature['address']
 
     @attr_not_found('cidade')
     def get_city(self, address:dict)->str:
 
-        cidade = address.get('city') or address.get('town') or address.get('municipality')
-        if cidade is None:
-            raise AtributeNotFound(f'Atributo não encontrado: cidade: {address}' )
-
-        return cidade
+        return address['municipality']
 
     @attr_not_found('state')
     def get_state(self, address:dict)->str:
 
-        return address['state']
+        return address['countrySubdivisionName']
 
     @attr_not_found('country')
     def get_country(self, address:dict)->str:
@@ -33,31 +29,38 @@ class AddressParser:
     @attr_not_found('country_code')
     def get_country_code(self, address:dict)->str:
 
-        return address['country_code']
+        return address['countryCode']
 
     @attr_not_found('road')
     def get_road(self, address:dict)->str:
 
-        return address['road']
+        return address['streetName']
 
     def get_number(self, address:dict)->str:
 
-        return address.get('house_number', None)
+        return address.get('streetNumber', None)
 
     @attr_not_found('geometry')
     def get_geom(self, feature:dict)->dict:
 
-        return feature['geometry']
+        position = feature['position']  
+        geom = build_geom_from_points(position)
+
+        return geom
+
 
     @attr_not_found('bbox')
     def get_bbox(self, feature:dict)->dict:
 
-        return feature['bbox']
+        viewport = feature['viewport']
+        bbox = build_bbox_viewport(viewport)
+
+        return bbox
 
     @attr_not_found('tipo_endereco')
-    def get_osm_type(self, feature_properties:dict)->dict:
+    def get_osm_type(self, feature:dict)->dict:
 
-        return feature_properties['osm_type']
+        return feature['type']
 
     def build_address_string(self, parsed_adress:dict)->str:
 
@@ -97,14 +100,14 @@ class AddressParser:
         resp['geometry'] = self.get_geom(feature)
         resp['bbox'] = self.get_bbox(feature)
         #adicionando tipo de endereco às propriedades
-        resp['properties']['osm_type'] = self.get_osm_type(feature['properties'])
+        resp['properties']['osm_type'] = self.get_osm_type(feature)
 
         return resp
 
     @attr_not_found('features')
     def get_features(self, resp:dict)->List[dict]:
 
-        return resp['features']
+        return resp['results']
 
 
     def parse_all_features(self, resp:dict)->List[dict]:
