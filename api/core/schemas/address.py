@@ -28,7 +28,7 @@ class GeoJsonEndereco(GeoJson):
 
 class AdressSearch(BaseModel):
 
-    endereco: GeoJson
+    endereco: GeoJsonEndereco
     camadas_geosampa: Dict[str, GeoJson]
 
 
