@@ -62,9 +62,6 @@ class AddresSearchSimple:
     
     def __call__(self, address:str)->List[dict]:
 
-        print(self.use_azure)
-        print(USE_AZURE)
-
         if not self.use_azure:
             print('Querying nominatim')
             geoloc_resp = self.nominatim_address_search(address)

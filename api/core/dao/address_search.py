@@ -1,17 +1,28 @@
 from core.integrations import nominatim_address_search
-from .parsers.nominatim import AddressParser
-from typing import List
-
+from core.integrations import azure_maps_address_search
+from .parsers.nominatim import AddressParser as NominatimAdressParser
+from .parsers.azure import AddressParser as AzureAdressParser
 from .geosampa import geosampa_address_query
 from core.utils.geo import geojson_envelop
 
+from typing import List
+
+from config import USE_AZURE
+
 class AddresSearch:
 
-    def __init__(self):
+    def __init__(self, use_azure=USE_AZURE):
 
         self.nominatim = nominatim_address_search
-        self.nominatim_parser = AddressParser()
+        self.nominatim_parser = NominatimAdressParser()
         self.geosampa_query = geosampa_address_query
+
+        self.use_azure = use_azure
+        if self.use_azure:
+            #só vou definir aqui no if mesmo porque quero que dê erro
+            #caso use a azure e não estiver especificado para usar
+            self.azure = azure_maps_address_search
+            self.azure_parser = AzureAdressParser()
 
     def nominatim_address_search(self, address:str)->List[dict]:
 
@@ -20,11 +31,18 @@ class AddresSearch:
 
         return geojson_data
     
+    def azure_address_search(self, address:str)->List[dict]:
+
+        resp = self.azure(address)
+        geojson_data = self.azure_parser(resp)
+
+        return geojson_data
+    
     def is_sp(self, address:dict)->bool:
 
         test_city = address['properties']['cidade']=='São Paulo'
         test_state = address['properties']['estado']=='São Paulo'
-        test_country = address['properties']['codigo_pais']=='br'
+        test_country = address['properties']['codigo_pais'].lower()=='br'
 
         return test_city * test_state & test_country
 
@@ -53,16 +71,27 @@ class AddresSearch:
 
         return address_data
     
+    def geoloc(self, address:str)->List[dict]:
+
+        if not self.use_azure:
+            print('Querying nominatim')
+            geoloc_resp = self.nominatim_address_search(address)
+        else:
+            print('Querying azure')
+            geoloc_resp = self.azure_address_search(address)
+
+        self.filter_address_sp(geoloc_resp)
+
+        return geoloc_resp
+    
     def __call__(self, address:str, convert_to_wgs_84:bool=True, **camadas)->List[dict]:
 
-
-        geoloc_resp = self.nominatim_address_search(address)
-        self.filter_address_sp(geoloc_resp)
-        nominatim_crs = geoloc_resp['crs']
+        geoloc_resp = self.geoloc(address)
+        resp_crs = geoloc_resp['crs']
         data = []
         #arrumar o endereco para ficar geojson
         for add in geoloc_resp['features']:
-            data.append(self.format_address_data(add, nominatim_crs, convert_to_wgs_84, **camadas))
+            data.append(self.format_address_data(add, resp_crs, convert_to_wgs_84, **camadas))
 
         return data
             
