@@ -1,4 +1,4 @@
-from core.integrations import azure_maps_address_search, azure_maps_cep_search
+from core.integrations import azure_maps_address_search, azure_maps_reverse_search, azure_maps_cep_search
 from core.integrations import nominatim_address_search, nominatim_reverse_search, nomimatim_cep_search
 
 from core.dao.parsers.nominatim import AddressParser as NominatimAddressParser
@@ -28,8 +28,12 @@ class GeocodeObj:
 
         return parsed
     
-    def reverse_geocode(self)->None:
-        pass
+    def reverse_geocode(self, x:float, y:float)->None:
+        
+        resp = self.__reverse_geoloc(x, y)
+        parsed = self.__parse_address(resp)
+
+        return parsed
 
 
 
@@ -44,13 +48,14 @@ class GeocodeFactory:
             self.address_geocode = azure_maps_address_search
             self.address_parser = AzureAddressParser()
             self.cep_geocode = azure_maps_cep_search
+            self.reverse_search = azure_maps_reverse_search
 
         else:
             print('Using Nominatim API')
             self.address_geocode = nominatim_address_search
             self.address_parser = NominatimAddressParser()
-            self.cep_geocode = nominatim_reverse_search
-        self.reverse_search = nomimatim_cep_search
+            self.cep_geocode = nomimatim_cep_search
+            self.reverse_search = nominatim_reverse_search
 
     def __call__(self)->GeocodeObj:
 

@@ -42,24 +42,45 @@ class AddressParser:
     @attr_not_found('geometry')
     def get_geom(self, feature:dict)->dict:
 
-        position = feature['position']  
+        position = feature['position']
+        if type(position) is str:
+            position_split = position.split(',')
+            position = {'lat' : float(position_split[0]), 'lon' :float(position_split[1])}
         geom = build_geom_from_points(position)
 
         return geom
 
+    def build_viewport_from_weird_bbox(self, weird_bbox:dict)->dict:
+
+        
+        y_max = weird_bbox['northEast'].split(',')[0]
+        y_min = weird_bbox['southWest'].split(',')[0]
+        x_max = weird_bbox['southWest'].split(',')[1]
+        x_min = weird_bbox['northEast'].split(',')[1]
+
+        viewport = {}
+        viewport['topLeftPoint'] = {'lat' : y_max,
+                                    'lon' : x_min}
+        viewport['btmRightPoint'] = {'lat' : y_min,
+                                    'lon' : x_max}
+        
+        return viewport
 
     @attr_not_found('bbox')
     def get_bbox(self, feature:dict)->dict:
+        
+        viewport = feature.get('viewport')
+        if viewport is None:
+            #no caso do reverse geocode vem uma bbox estranha que é um viewport na verdade
+            viewport = self.build_viewport_from_weird_bbox(feature['address']['boundingBox'])
 
-        viewport = feature['viewport']
-        bbox = build_bbox_viewport(viewport)
+        return build_bbox_viewport(viewport)
 
-        return bbox
 
     @attr_not_found('tipo_endereco')
     def get_osm_type(self, feature:dict)->str:
 
-        return feature['type']
+        return feature.get('type') or feature['matchType']
     
 
     def get_cep(self, address:dict)->str:
@@ -127,6 +148,10 @@ class AddressParser:
     @attr_not_found('features')
     def get_features(self, resp:dict)->List[dict]:
 
+        results = resp.get('results')
+        if not results:
+            resp['results'] = resp['addresses']
+
         return resp['results']
 
 
@@ -136,7 +161,6 @@ class AddressParser:
 
         #a API da Azure devolve municipios inteiros, regioes etc.
         #entao precisa fazer um filtro, porque é comum vir com outros atributos
-
         parsed_results = []
         for feat in features:
             try:
@@ -145,11 +169,11 @@ class AddressParser:
             except AtributeNotFound as e:
                 print(f'Feature fora do padrão: {feat}')
                 print(str(e))
-                
+
         return parsed_results
 
     def __call__(self, resp:dict)->List[dict]:
 
         parsed_features = self.parse_all_features(resp)
-
+        print(parsed_features)
         return geojson_envelop(parsed_features, epsg_num=4326)

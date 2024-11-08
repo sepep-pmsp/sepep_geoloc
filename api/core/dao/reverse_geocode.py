@@ -20,7 +20,7 @@ class ReverseGeocode:
 
         test_city = address['properties']['cidade']=='São Paulo'
         test_state = address['properties']['estado']=='São Paulo'
-        test_country = address['properties']['codigo_pais']=='br'
+        test_country = address['properties']['codigo_pais'].lower()=='br'
 
         return test_city * test_state & test_country
     
@@ -29,7 +29,6 @@ class ReverseGeocode:
         in_city = [add for add in address_geojson['features']
                 if self.is_sp(add)]
         address_geojson['features'] = in_city
-
 
     def pipeline(self, x:float, y:float)->dict:
 
