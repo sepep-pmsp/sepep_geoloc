@@ -5,19 +5,14 @@ from core.utils.geo import geojson_envelop
 from typing import List
 
 class AddressParser:
-
-    def __init__(self, feature_list:bool=True, extract_geom:bool=True)->None:
-
-        #define necessidade de envelopar para casos em que vem o objeto diretamente
-        self.feature_list=feature_list
-        self.extract_geom=extract_geom
-        
-
+      
     @attr_not_found('address')
     def get_address(self, feature:dict)->dict:
 
-        if self.feature_list:
+        if 'properties' in feature:
+
             return feature['properties']['address']
+        
         #no caso de ser flat o address é um atributo direto
         return feature['address']
 
@@ -60,15 +55,23 @@ class AddressParser:
     def get_number(self, address:dict)->str:
 
         return address.get('house_number', None)
+    
+    def build_geometry_from_lon_lat(self, lon:float, lat:float)->dict:
+
+        return {'type' : 'Point', 'coordinates' : [lon, lat]}
 
     @attr_not_found('geometry')
     def get_geom(self, feature:dict)->dict:
 
 
-        if self.extract_geom:
-            return feature['geometry']
-        else:
-            return {}
+        geom = feature.get('geometry')
+
+        if geom is None:
+            feature['geometry'] = self.build_geometry_from_lon_lat(1, 2)
+
+        return feature['geometry']
+            
+        
 
     @attr_not_found('bbox')
     def get_bbox(self, feature:dict)->dict:
@@ -124,6 +127,7 @@ class AddressParser:
         parsed_addres['string_endereco'] = self.build_address_string(parsed_addres)
 
         return parsed_addres
+    
 
     def build_feat_geojson(self, feature:dict)->dict:
 
@@ -151,7 +155,7 @@ class AddressParser:
 
     def __call__(self, resp:dict)->List[dict]:
 
-        if not self.feature_list:
+        if 'features' not in resp:
             #envelopa
             resp['features']=[resp]
         
