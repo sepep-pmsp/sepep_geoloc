@@ -15,7 +15,7 @@ class EnderecoProperties(BaseModel):
     pais: str
     codigo_pais: str
     string_endereco: str
-    cep: str
+    cep: Optional[str]=None
     osm_type: str
 
 class Endereco(Feature):
