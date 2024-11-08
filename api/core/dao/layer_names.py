@@ -2,7 +2,7 @@ import time
 from .camadas_search import ListCamadas
 from config import NAMES_CAMADAS_TTL_SECONDS
 
-class CheckCamadaName:
+class NamesCamadas:
 
     def __init__(self, ttl=NAMES_CAMADAS_TTL_SECONDS):
 

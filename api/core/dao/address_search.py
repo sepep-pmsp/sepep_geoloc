@@ -1,42 +1,15 @@
-from core.integrations import nominatim_address_search
-from core.integrations import azure_maps_address_search
-from .parsers.nominatim import AddressParser as NominatimAdressParser
-from .parsers.azure import AddressParser as AzureAdressParser
+from .geocoder import get_geocoder
 from .geosampa import geosampa_address_query
 from core.utils.geo import geojson_envelop
 
 from typing import List
 
-from config import USE_AZURE
-
 class AddresSearch:
 
-    def __init__(self, use_azure=USE_AZURE):
+    def __init__(self):
 
-        self.nominatim = nominatim_address_search
-        self.nominatim_parser = NominatimAdressParser()
         self.geosampa_query = geosampa_address_query
-
-        self.use_azure = use_azure
-        if self.use_azure:
-            #só vou definir aqui no if mesmo porque quero que dê erro
-            #caso use a azure e não estiver especificado para usar
-            self.azure = azure_maps_address_search
-            self.azure_parser = AzureAdressParser()
-
-    def nominatim_address_search(self, address:str)->List[dict]:
-
-        resp = self.nominatim(address)
-        geojson_data = self.nominatim_parser(resp)
-
-        return geojson_data
-    
-    def azure_address_search(self, address:str)->List[dict]:
-
-        resp = self.azure(address)
-        geojson_data = self.azure_parser(resp)
-
-        return geojson_data
+        self.geocoder = get_geocoder()
     
     def is_sp(self, address:dict)->bool:
 
@@ -71,26 +44,20 @@ class AddresSearch:
 
         return address_data
     
-    def geoloc(self, address:str)->List[dict]:
+    def geocode(self, address:str)->List[dict]:
 
-        if not self.use_azure:
-            print('Querying nominatim')
-            geoloc_resp = self.nominatim_address_search(address)
-        else:
-            print('Querying azure')
-            geoloc_resp = self.azure_address_search(address)
+        geocode_resp = self.geocoder.geocode(address)
+        self.filter_address_sp(geocode_resp)
 
-        self.filter_address_sp(geoloc_resp)
-
-        return geoloc_resp
+        return geocode_resp
     
     def __call__(self, address:str, convert_to_wgs_84:bool=True, **camadas)->List[dict]:
 
-        geoloc_resp = self.geoloc(address)
-        resp_crs = geoloc_resp['crs']
+        geocode_resp = self.geocode(address)
+        resp_crs = geocode_resp['crs']
         data = []
         #arrumar o endereco para ficar geojson
-        for add in geoloc_resp['features']:
+        for add in geocode_resp['features']:
             data.append(self.format_address_data(add, resp_crs, convert_to_wgs_84, **camadas))
 
         return data
