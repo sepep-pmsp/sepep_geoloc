@@ -1,6 +1,7 @@
 
 import warnings
 import re
+from core.utils.misc import url_encode
 
 class QueryBuilder:
 
@@ -76,6 +77,9 @@ class QueryBuilder:
         query['streetNumber'] = number
 
     def set_address_query(self, query:dict, full_address:str)->None:
+
+        #must be url encoded
+        full_address = url_encode(full_address)
 
         query['query'] = full_address
 
