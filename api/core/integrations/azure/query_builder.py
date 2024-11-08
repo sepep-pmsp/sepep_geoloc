@@ -1,14 +1,14 @@
 
 import warnings
 import re
-from core.utils.misc import url_encode
+from typing import Optional
 
 class QueryBuilder:
 
     version = '1.0'
 
     def __init__(self, city:str, state:str, country_iso:str, 
-                token:str, **kwargs)->None:
+                token:str, only_cep:bool=False, **kwargs)->None:
         
 
         self.check_country_iso(country_iso)
@@ -16,6 +16,8 @@ class QueryBuilder:
         self.state = state
         self.city = city
         self.token = token
+
+        self.only_cep = only_cep
 
         if kwargs.get('bbox_bound') or kwargs.get('bbox'):
             warnings.warn('Azure Maps não suporta bounding box na resposta')
@@ -76,12 +78,10 @@ class QueryBuilder:
         #rua e numero apenas o resto vai ser pre definido
         query['streetNumber'] = number
 
-    def set_address_query(self, query:dict, full_address:str)->None:
 
-        #must be url encoded
-        full_address = url_encode(full_address)
+    def set_cep(self, query:dict, cep:str)->None:
 
-        query['query'] = full_address
+        query['postalCode'] = cep
 
 
     def build_query_str(self, query:dict)->str:
@@ -127,26 +127,43 @@ class QueryBuilder:
         street_name = address[:end_index]
         street_name = re.sub(r'[^\w0-9\s-]', '', street_name)
 
+        street_name = street_name.strip()
+
         return street_name
             
 
-    def build_full_query(self, address:str)->dict:
-
-        street = self.get_street_name(address)
-        number = self.get_street_number(address)
+    def build_full_query(self, address:str, cep:str)->dict:
 
         query = dict()
-        address = ', '.join([street, number])
-        self.set_address_query(query, address)
-        self.set_street(query, street)
-        self.set_street_number(query, number)
+        if address:
+            street = self.get_street_name(address)
+            number = self.get_street_number(address)
+            self.set_street(query, street)
+            self.set_street_number(query, number)
+        if cep:
+            cep  = self.set_cep(query, cep)
+
         self.set_search_boundaries(query)
         self.set_config_params(query)
 
         return self.build_query_str(query)
+    
+    def solve_adress_parameter(self, address:str)->str:
 
-    def __call__(self, address:str)->str:
+        #only cep overrides address parameter
+        if self.only_cep:
+            address = None
+        
+        return address
+
+
+    def __call__(self, address:Optional[str]=None, cep:Optional[str]=None)->str:
         '''Address is considered just street number and name. Rest is pre-defined. 
         Street number and name are extracted from string'''
 
-        return self.build_full_query(address)
+        address = self.solve_adress_parameter(address)
+
+        if address is None and cep is None:
+            raise ValueError("Either address or cep must be defined")
+
+        return self.build_full_query(address, cep)
