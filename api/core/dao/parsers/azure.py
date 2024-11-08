@@ -6,10 +6,6 @@ from typing import List
 
 class AddressParser:
 
-    def __init__(self, street_level:bool=True)->None:
-
-        self.street_level = street_level
-
     @attr_not_found('address')
     def get_address(self, feature:dict)->dict:
 
@@ -67,15 +63,12 @@ class AddressParser:
         return feature['type']
     
 
-    @attr_not_found('cep')
     def get_cep(self, address:dict)->str:
 
+        # a informação do cep não vem sempre no Azure não dá para obrigar
+        # vai restringir muito os resultados
         cep = address.get('extendedPostalCode')
-        if cep is None:
-            if self.street_level:
-                raise AtributeNotFound(f'Atributo não encontrado: cep: {address}')
-            else:
-                cep = ''
+
         return cep
     
     def get_bairro(self, address:dict)->str:
@@ -147,8 +140,9 @@ class AddressParser:
             try:
                 parsed = self.build_feat_geojson(feat)
                 parsed_results.append(parsed)
-            except AtributeNotFound:
+            except AtributeNotFound as e:
                 print(f'Feature fora do padrão: {feat}')
+                print(str(e))
                 
         return parsed_results
 
