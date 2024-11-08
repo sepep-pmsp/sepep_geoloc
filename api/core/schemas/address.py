@@ -7,7 +7,7 @@ from .camadas import CamadaParam
 
 class EnderecoProperties(BaseModel):
 
-    rua: str
+    rua: Optional[str]=None
     numero: Optional[str]=None
     cidade: str
     bairro: Optional[str]=None

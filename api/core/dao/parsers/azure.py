@@ -31,10 +31,9 @@ class AddressParser:
 
         return address['countryCode']
 
-    @attr_not_found('road')
     def get_road(self, address:dict)->str:
 
-        return address['streetName']
+        return address.get('streetName')
 
     def get_number(self, address:dict)->str:
 
@@ -80,14 +79,17 @@ class AddressParser:
 
     def build_address_string(self, parsed_adress:dict)->str:
 
-        if parsed_adress.get('numero'):
-            addres= (f"{parsed_adress['rua']}, nº {parsed_adress['numero']}, "
-                    f"{parsed_adress['cidade']}, {parsed_adress['cidade']}, {parsed_adress['pais']}")
-        else:
-            addres= (f"{parsed_adress['rua']}, "
-                    f"{parsed_adress['cidade']}, {parsed_adress['cidade']}, {parsed_adress['pais']}")
-
-        return addres
+        if parsed_adress.get('numero') and parsed_adress['rua']:
+            return (f"{parsed_adress['rua']}, nº {parsed_adress['numero']}, "
+                    f"{parsed_adress['cidade']}, {parsed_adress['pais']}")
+        if not parsed_adress.get('numero') and parsed_adress['rua']:
+            return (f"{parsed_adress['rua']}, sem número,"
+                    f"{parsed_adress['cidade']}, {parsed_adress['pais']}")
+            
+        if not parsed_adress['rua'] and parsed_adress['bairro']:
+            return f"{parsed_adress['bairro']}, {parsed_adress['cidade']}, {parsed_adress['pais']}"
+        
+        return f"{parsed_adress['cidade']}, {parsed_adress['pais']}"
 
     def parse_address(self, feature:dict)->dict:
 
