@@ -62,13 +62,13 @@ class AddressParser:
         return bbox
 
     @attr_not_found('tipo_endereco')
-    def get_osm_type(self, feature:dict)->dict:
+    def get_osm_type(self, feature:dict)->str:
 
         return feature['type']
     
 
     @attr_not_found('cep')
-    def get_cep(self, address:dict)->dict:
+    def get_cep(self, address:dict)->str:
 
         cep = address.get('extendedPostalCode')
         if cep is None:
@@ -77,6 +77,13 @@ class AddressParser:
             else:
                 cep = ''
         return cep
+    
+    def get_bairro(self, address:dict)->str:
+        
+        #bairro não é obrigatório
+        bairro = address.get('neighbourhood', '')
+
+        return bairro
 
     def build_address_string(self, parsed_adress:dict)->str:
 
@@ -99,7 +106,8 @@ class AddressParser:
             'estado' : self.get_state(resp_address),
             'pais' : self.get_country(resp_address),
             'codigo_pais' : self.get_country_code(resp_address),
-            'cep' : self.get_cep(resp_address)
+            'cep' : self.get_cep(resp_address),
+            'bairro' : self.get_bairro(resp_address)
         }
 
         numero = self.get_number(resp_address)
