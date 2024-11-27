@@ -111,10 +111,12 @@ class QueryBuilder:
         
         primeira_virgula = re.search(r'(,|;)', address)
         if primeira_virgula:
+            primeira_virgula=primeira_virgula.group()
             return address.find(primeira_virgula)
         
         sao_paulo = re.search(r's.o paulo', address, re.IGNORECASE)
         if sao_paulo:
+            sao_paulo = sao_paulo.group()
             return address.find(sao_paulo)
         
         #se nao tem nada disso, o endereço é só o nome da rua
