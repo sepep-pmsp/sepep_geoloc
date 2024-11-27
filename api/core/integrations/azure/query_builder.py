@@ -2,6 +2,7 @@
 import warnings
 import re
 from typing import Optional
+from core.utils.misc import url_encode
 
 class QueryBuilder:
 
@@ -120,7 +121,7 @@ class QueryBuilder:
             return address.find(sao_paulo)
         
         #se nao tem nada disso, o endereço é só o nome da rua
-        return -1
+        return len(address)+1
         
     
     def get_street_name(self, address:str)->str:
@@ -132,11 +133,9 @@ class QueryBuilder:
         street_name = street_name.strip()
 
         return street_name
-            
+    
+    def set_search_params(self, query:dict, address:str, cep:str)->None:
 
-    def build_full_query(self, address:str, cep:str)->dict:
-
-        query = dict()
         if address:
             street = self.get_street_name(address)
             number = self.get_street_number(address)
@@ -144,8 +143,21 @@ class QueryBuilder:
             self.set_street_number(query, number)
         if cep:
             cep  = self.set_cep(query, cep)
+    
+    def url_encod_params(self, query:dict)->None:
 
+        for key, value in query.items():
+            query[key] = url_encode(query[key])
+
+    def build_full_query(self, address:str, cep:str)->str:
+
+        query = dict()
+        self.set_search_params(query, address, cep)
         self.set_search_boundaries(query)
+
+        #must run before seting config otherwise screws with token
+        self.url_encod_params(query)
+
         self.set_config_params(query)
 
         return self.build_query_str(query)
@@ -168,4 +180,5 @@ class QueryBuilder:
         if address is None and cep is None:
             raise ValueError("Either address or cep must be defined")
 
-        return self.build_full_query(address, cep)
+        query_str = self.build_full_query(address, cep)
+        return query_str

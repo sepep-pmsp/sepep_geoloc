@@ -3,7 +3,9 @@ import urllib.parse
 from fastapi import HTTPException
 
 def url_encode(input_string):
-    return urllib.parse.quote(input_string)
+
+    encoded = urllib.parse.quote_plus(input_string)
+    return encoded
 
 
 def check_cep(cep:str)->None:
